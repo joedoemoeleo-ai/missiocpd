@@ -1,72 +1,1526 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <title>Inscripción Ciclos Formativos</title>
-    <link rel="stylesheet" href="estilos.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Missió: CPD Sostenible</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap');
+
+  :root {
+    --green: #00ff9d;
+    --cyan: #00e5ff;
+    --dark: #060c10;
+    --darker: #030608;
+    --panel: rgba(0,20,15,0.85);
+    --border: rgba(0,255,157,0.3);
+    --red: #ff3d5a;
+    --yellow: #ffe600;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--dark);
+    color: #c8ffe8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ANIMATED BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 50%, rgba(0,255,157,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 20%, rgba(0,229,255,0.04) 0%, transparent 50%),
+      linear-gradient(180deg, #060c10 0%, #030a08 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .game-container {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===================== INTRO SCREEN ===================== */
+  #screen-intro {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  #screen-intro.active { display: flex; }
+
+  .logo-text {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: 0 0 30px rgba(0,255,157,0.7), 0 0 60px rgba(0,255,157,0.3);
+    letter-spacing: 0.1em;
+    animation: pulse 2s ease-in-out infinite;
+    margin-bottom: 8px;
+  }
+
+  .logo-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    color: var(--cyan);
+    letter-spacing: 0.3em;
+    opacity: 0.8;
+    margin-bottom: 40px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { text-shadow: 0 0 30px rgba(0,255,157,0.7), 0 0 60px rgba(0,255,157,0.3); }
+    50% { text-shadow: 0 0 50px rgba(0,255,157,1), 0 0 100px rgba(0,255,157,0.5); }
+  }
+
+  .server-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 30px;
+    position: relative;
+  }
+
+  .server-icon svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 15px rgba(0,255,157,0.5));
+  }
+
+  .story-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 32px;
+    max-width: 680px;
+    margin: 0 auto 36px;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .story-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--green), var(--cyan));
+  }
+
+  .story-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .story-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #a0dfc0;
+  }
+
+  .story-text strong { color: var(--green); }
+
+  .timer-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,61,90,0.1);
+    border: 1px solid rgba(255,61,90,0.4);
+    border-radius: 4px;
+    padding: 12px 20px;
+    margin-bottom: 30px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--red);
+  }
+
+  .btn-primary {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--dark);
+    background: var(--green);
+    border: none;
+    padding: 16px 48px;
+    cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover {
+    background: #40ffb8;
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0,255,157,0.5);
+  }
+
+  /* ===================== GAME SCREEN ===================== */
+  #screen-game.active { display: block; }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(0,10,8,0.9);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  .hud-timer { color: var(--red); font-size: 1.2rem; }
+  .hud-timer.ok { color: var(--green); }
+  .hud-progress { color: var(--cyan); }
+
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--green);
+    background: transparent;
+    transition: all 0.3s;
+  }
+  .dot.done { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dot.active { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: blink 1s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* CHALLENGE PANELS */
+  .challenge {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .challenge.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .challenge-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .ods-badge {
+    min-width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 1.1rem;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .ods-badge.ods12 { background: rgba(191,139,0,0.2); border: 1px solid #bf8b00; color: var(--yellow); }
+  .ods-badge.ods13 { background: rgba(0,115,50,0.2); border: 1px solid #00a050; color: #50ff90; }
+  .ods-badge.ec { background: rgba(0,80,200,0.2); border: 1px solid #0050c8; color: var(--cyan); }
+  .ods-badge.final { background: rgba(0,200,255,0.15); border: 1px solid var(--cyan); color: var(--cyan); }
+
+  .ods-badge span { font-size: 0.5rem; letter-spacing: 0.05em; font-family: 'Exo 2', sans-serif; font-weight: 400; }
+
+  .challenge-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+
+  .challenge-desc {
+    font-size: 0.85rem;
+    color: #7ab99a;
+    font-style: italic;
+  }
+
+  .panel-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .panel-box h3 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+
+  /* ===================== RETO 1: CEMENTIRI ===================== */
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .component-item {
+    background: rgba(0,15,10,0.8);
+    border: 1px solid rgba(0,255,157,0.15);
+    border-radius: 4px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .component-item:hover {
+    border-color: rgba(0,255,157,0.5);
+    background: rgba(0,30,20,0.9);
+    transform: translateY(-2px);
+  }
+
+  .component-item.selected {
+    border-color: var(--green);
+    background: rgba(0,255,157,0.08);
+    box-shadow: 0 0 15px rgba(0,255,157,0.2);
+  }
+
+  .component-item.wrong {
+    border-color: var(--red);
+    background: rgba(255,61,90,0.08);
+    animation: shake 0.3s ease;
+  }
+
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)}
+  }
+
+  .component-icon { font-size: 2rem; margin-bottom: 8px; }
+  .component-name { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: #80c0a0; }
+  .component-status { font-size: 0.65rem; margin-top: 4px; }
+  .status-ok { color: var(--green); }
+  .status-bad { color: var(--red); }
+
+  .selection-counter {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--cyan);
+    margin-bottom: 16px;
+  }
+
+  /* ===================== RETO 2: ENERGIA ===================== */
+  .energy-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .energy-switch {
+    background: rgba(0,15,10,0.8);
+    border: 1px solid rgba(0,255,157,0.15);
+    border-radius: 4px;
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+  }
+
+  .energy-switch:hover { border-color: rgba(0,255,157,0.4); transform: translateY(-2px); }
+
+  .energy-switch.danger { border-color: rgba(255,61,90,0.5); background: rgba(255,61,90,0.05); }
+  .energy-switch.safe { border-color: var(--green); background: rgba(0,255,157,0.08); box-shadow: 0 0 20px rgba(0,255,157,0.15); }
+  .energy-switch.locked { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+  .energy-icon { font-size: 2.4rem; margin-bottom: 10px; }
+  .energy-name { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; margin-bottom: 6px; }
+  .energy-co2 { font-size: 0.65rem; }
+
+  .server-temp {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 20px;
+  }
+
+  .temp-bar-wrap {
+    width: 100%;
+    height: 20px;
+    background: rgba(0,15,10,0.9);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .temp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
+    width: 30%;
+    transition: width 0.8s ease;
+    position: relative;
+  }
+
+  .temp-value { font-size: 1.1rem; }
+  .temp-value.hot { color: var(--red); }
+  .temp-value.ok { color: var(--green); }
+
+  /* MAZE */
+  .maze-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  canvas#maze-canvas {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+  }
+
+  .maze-instructions {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: #7ab99a;
+    margin-bottom: 12px;
+  }
+
+  /* ===================== RETO 3: CICLE DE VIDA ===================== */
+  .lifecycle-area {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .lifecycle-source {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .lifecycle-target {
+    flex: 1.5;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .drag-item {
+    background: rgba(0,20,15,0.9);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--cyan);
+    transition: all 0.2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .drag-item:hover { border-color: var(--cyan); transform: translateX(4px); }
+  .drag-item.dragging { opacity: 0.4; }
+  .drag-item.placed { opacity: 0.3; pointer-events: none; }
+
+  .cycle-diagram {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin-bottom: 16px;
+  }
+
+  .cycle-diagram svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+  }
+
+  .cycle-slots {
+    position: absolute;
+    inset: 0;
+  }
+
+  .cycle-slot {
+    position: absolute;
+    width: 88px;
+    height: 40px;
+    background: rgba(0,15,10,0.9);
+    border: 1px dashed rgba(0,255,157,0.3);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(0,255,157,0.4);
+    transition: all 0.2s;
+    transform: translate(-50%, -50%);
+  }
+
+  .cycle-slot.dragover {
+    border-color: var(--green);
+    background: rgba(0,255,157,0.1);
+    color: var(--green);
+  }
+
+  .cycle-slot.filled {
+    border-color: var(--green);
+    background: rgba(0,255,157,0.1);
+    color: var(--green);
+    border-style: solid;
+  }
+
+  /* ===================== RETO 4: CODI FINAL ===================== */
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .quiz-option {
+    background: rgba(0,15,10,0.8);
+    border: 1px solid rgba(0,255,157,0.2);
+    border-radius: 4px;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #a0dfc0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .quiz-option:hover { border-color: var(--cyan); background: rgba(0,229,255,0.05); transform: translateX(4px); }
+
+  .quiz-option.correct { border-color: var(--green); background: rgba(0,255,157,0.1); color: var(--green); }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(255,61,90,0.1); color: var(--red); }
+
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 2px;
+    background: rgba(0,255,157,0.1);
+    border: 1px solid rgba(0,255,157,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--green);
+    flex-shrink: 0;
+  }
+
+  .terminal-input {
+    background: rgba(0,10,5,0.95);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    min-height: 80px;
+  }
+
+  .terminal-input .cursor {
+    display: inline-block;
+    width: 8px; height: 1.1em;
+    background: var(--green);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  .terminal-line { color: #50d080; }
+  .terminal-line.dim { color: #306040; }
+  .terminal-line.highlight { color: var(--green); }
+  .terminal-line.error { color: var(--red); }
+
+  /* ===================== FEEDBACK MESSAGES ===================== */
+  .feedback {
+    padding: 12px 18px;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.82rem;
+    margin-top: 12px;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.success { background: rgba(0,255,157,0.08); border: 1px solid var(--green); color: var(--green); }
+  .feedback.error { background: rgba(255,61,90,0.08); border: 1px solid var(--red); color: var(--red); }
+
+  /* ===================== BTN VALIDATE ===================== */
+  .btn-validate {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--dark);
+    background: var(--green);
+    border: none;
+    padding: 12px 32px;
+    cursor: pointer;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    transition: all 0.2s;
+    text-transform: uppercase;
+    display: block;
+    margin: 16px auto 0;
+  }
+  .btn-validate:hover { background: #40ffb8; box-shadow: 0 0 20px rgba(0,255,157,0.4); }
+  .btn-validate:disabled { background: #1a3a2a; color: #2a5a3a; cursor: not-allowed; }
+
+  /* ===================== WIN SCREEN ===================== */
+  #screen-win { text-align: center; padding: 60px 20px; }
+  #screen-win.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+
+  .win-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: 0 0 40px rgba(0,255,157,0.8);
+    margin-bottom: 12px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .win-subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--cyan);
+    margin-bottom: 40px;
+    font-size: 1rem;
+  }
+
+  .win-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto 40px;
+  }
+
+  .stat-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 12px;
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--green);
+    display: block;
+  }
+
+  .stat-label { font-size: 0.7rem; color: #7ab99a; font-family: 'Share Tech Mono', monospace; }
+
+  .osd-summary {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto 32px;
+    text-align: left;
+  }
+
+  .osd-summary h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    color: var(--green);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .ods-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,255,157,0.1);
+    font-size: 0.85rem;
+    color: #a0dfc0;
+  }
+
+  .ods-row:last-child { border-bottom: none; }
+
+  /* ===================== GAME OVER SCREEN ===================== */
+  #screen-over { text-align: center; padding: 60px 20px; }
+  #screen-over.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+
+  .over-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 900;
+    color: var(--red);
+    text-shadow: 0 0 40px rgba(255,61,90,0.8);
+    margin-bottom: 12px;
+  }
+
+  /* GLITCH */
+  .glitch {
+    position: relative;
+  }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    width: 100%;
+  }
+  .glitch::before { color: var(--cyan); animation: glitch1 2s infinite; clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); }
+  .glitch::after { color: var(--red); animation: glitch2 2s infinite; clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%); }
+  @keyframes glitch1 { 0%,95%{transform:translate(0)} 96%{transform:translate(-3px,1px)} 100%{transform:translate(0)} }
+  @keyframes glitch2 { 0%,95%{transform:translate(0)} 96%{transform:translate(3px,-1px)} 100%{transform:translate(0)} }
+
+  .btn-secondary {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--green);
+    background: transparent;
+    border: 1px solid var(--green);
+    padding: 12px 32px;
+    cursor: pointer;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    transition: all 0.2s;
+    text-transform: uppercase;
+    margin-top: 20px;
+  }
+  .btn-secondary:hover { background: rgba(0,255,157,0.1); }
+
+  /* Confetti particles */
+  .particle {
+    position: fixed;
+    width: 6px; height: 6px;
+    pointer-events: none;
+    z-index: 999;
+    animation: fall linear forwards;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .components-grid { grid-template-columns: repeat(2, 1fr); }
+    .energy-panel { grid-template-columns: 1fr 1fr; }
+    .lifecycle-area { flex-direction: column; }
+    .win-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
 </head>
 <body>
 
-    <div class="main-wrapper">
-        <h1>HOJA DE INSCRIPCIÓN <br> EN LOS CICLOS FORMATIVOS DE GRADO SUPERIOR</h1>
+<!-- ===================== INTRO ===================== -->
+<div id="screen-intro" class="screen active">
+  <div class="game-container">
+    <div class="server-icon">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="15" width="80" height="18" rx="2" stroke="#00ff9d" stroke-width="1.5" fill="rgba(0,255,157,0.05)"/>
+        <rect x="14" y="20" width="4" height="8" rx="1" fill="#00ff9d"/>
+        <circle cx="82" cy="24" r="3" fill="#00e5ff"/>
+        <rect x="10" y="41" width="80" height="18" rx="2" stroke="#00ff9d" stroke-width="1.5" fill="rgba(0,255,157,0.05)"/>
+        <rect x="14" y="46" width="4" height="8" rx="1" fill="#00ff9d"/>
+        <circle cx="82" cy="50" r="3" fill="#ffe600" opacity="0.7"/>
+        <rect x="10" y="67" width="80" height="18" rx="2" stroke="#00ff9d" stroke-width="1.5" fill="rgba(0,255,157,0.05)"/>
+        <rect x="14" y="72" width="4" height="8" rx="1" fill="#00ff9d"/>
+        <circle cx="82" cy="76" r="3" fill="#ff3d5a"/>
+        <line x1="50" y1="0" x2="50" y2="15" stroke="#00ff9d" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/>
+        <line x1="50" y1="85" x2="50" y2="100" stroke="#00ff9d" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="logo-text glitch" data-text="MISSIÓ: CPD SOSTENIBLE">MISSIÓ: CPD SOSTENIBLE</div>
+    <div class="logo-sub">// ASIX – SOSTENIBILITAT APLICADA // INSTITUT LA PINEDA //</div>
 
-        <form action="valida.php" method="post">
-            
-            <fieldset class="bloque-gris">
-                <legend>Datos Personales</legend>
-                <div class="fila">
-                    <label>Nombre: <input type="text" name="nom"></label>
-                    <label>Apellidos: <input type="text" name="ape"></label>
-                    <label>DNI: <input type="text" name="dni" size="10"></label>
-                </div>
-                <div class="fila">
-                    <label>Localidad Nacimiento: <input type="text" name="loc"></label>
-                    <label>Provincia: 
-                        <select name="prov">
-                            <option value="">- selecciona -</option>
-                            <option value="bcn">Barcelona</option>
-                            <option value="mad">Madrid</option>
-                            <option value="val">Valencia</option>
-                        </select>
-                    </label>
-                    <label>Fecha Nacimiento: <input type="text" name="fecha" placeholder="dd/mm/aaaa"></label>
-                </div>
-                <div class="fila">
-                    <label class="ancho-total">Dirección: <input type="text" name="dir"></label>
-                    <label>Código Postal: <input type="text" name="cp" size="5"></label>
-                </div>
-            </fieldset>
-
-            <fieldset class="bloque-naranja">
-                <legend>Forma de Acceso</legend>
-                <div class="opciones-acceso">
-                    <p><input type="radio" name="tipo_acceso" value="directo"> Directo</p>
-                    <ul class="lista-sub">
-                        <li><input type="radio" name="sub_directo"> Bachillerato LOGSE. Modalidad <input type="text" name="mod_logse"></li>
-                        <li><input type="radio" name="sub_directo"> Bachillerato Experimental</li>
-                        <li><input type="radio" name="sub_directo"> COU. Opción <input type="text" name="opt_cou"></li>
-                        <li><input type="radio" name="sub_directo"> FP2</li>
-                        <li><input type="radio" name="sub_directo"> Otros (especifique) <input type="text" name="otros_acc"></li>
-                    </ul>
-                    <p><input type="radio" name="tipo_acceso" value="prueba"> Prueba Libre</p>
-                </div>
-            </fieldset>
-
-            <fieldset class="bloque-rojo">
-                <legend>Documentos Adjuntados</legend>
-                <div class="fila-docs">
-                    <label><input type="checkbox" name="doc_dni"> Fotocopia DNI</label>
-                    <label><input type="checkbox" name="doc_cert"> Certificado Académico</label>
-                </div>
-                <div class="fila-docs">
-                    <label><input type="checkbox" name="doc_otros"> Otros documentos (especifique)</label>
-                    <input type="text" name="otros_doc" class="input-largo">
-                </div>
-            </fieldset>
-
-            <input type="submit" value="Enviar Solicitud" class="boton-envio">
-        </form>
+    <div class="story-panel">
+      <div class="story-label">// briefing inicial //</div>
+      <p class="story-text">
+        Acabes d'arribar al teu primer dia de <strong>pràctiques</strong>. L'empresa té els servidors fets un desastre: gasten molta llum, les peces velles es llencen a qualsevol lloc i no hi ha cap control del que compren.<br><br>
+        Has de superar <strong>4 reptes</strong> per modernitzar l'empresa seguint els principis de <strong>l'Economia Circular</strong> i els ODS 9, 12 i 13… abans que el sistema s'escalfi massa i exploti.
+      </p>
     </div>
 
+    <div class="timer-warning">
+      <span>⚠</span>
+      <span>TEMPS LÍMIT: 10:00 minuts · Si s'esgota el temps, el CPD entra en mode crític</span>
+    </div>
+
+    <button class="btn-primary" onclick="startGame()">INICIAR MISSIÓ</button>
+  </div>
+</div>
+
+<!-- ===================== GAME ===================== -->
+<div id="screen-game" class="screen">
+  <div class="game-container">
+
+    <!-- HUD -->
+    <div class="hud">
+      <div>
+        <div style="font-size:0.65rem;color:#7ab99a;letter-spacing:0.2em;margin-bottom:2px">TEMPS RESTANT</div>
+        <div class="hud-timer ok" id="timer-display">10:00</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:0.65rem;color:#7ab99a;letter-spacing:0.2em;margin-bottom:6px">REPTES COMPLETATS</div>
+        <div class="progress-dots">
+          <div class="dot active" id="dot-1"></div>
+          <div class="dot" id="dot-2"></div>
+          <div class="dot" id="dot-3"></div>
+          <div class="dot" id="dot-4"></div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:0.65rem;color:#7ab99a;letter-spacing:0.2em;margin-bottom:2px">REPTE ACTUAL</div>
+        <div class="hud-progress" id="challenge-label">1 / 4</div>
+      </div>
+    </div>
+
+    <!-- REPTE 1: CEMENTIRI TÈCNIC -->
+    <div id="challenge-1" class="challenge active">
+      <div class="challenge-header">
+        <div class="ods-badge ods12">ODS<br>12<span>CONSUM RESP.</span></div>
+        <div>
+          <div class="challenge-title">EL CEMENTIRI TÈCNIC</div>
+          <div class="challenge-desc">El magatzem on el passat de la tecnologia té futur</div>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>// situació //</h3>
+        <p style="font-size:0.88rem;color:#a0dfc0;line-height:1.6;margin-bottom:0">
+          El magatzem és ple de material vell. Has de trobar <strong style="color:var(--green)">3 components reutilitzables</strong> per muntar un equip de recanvi en lloc de comprar hardware nou. Identifica els que <span style="color:var(--green)">encara funcionen</span> i evita els que estan trencats.
+        </p>
+      </div>
+
+      <div class="panel-box">
+        <h3>// selecciona 3 components funcionals //</h3>
+        <div class="selection-counter" id="c1-counter">Seleccionats: <span>0</span> / 3</div>
+        <div class="components-grid" id="c1-grid">
+          <!-- injected by JS -->
+        </div>
+        <div class="feedback" id="c1-feedback"></div>
+        <button class="btn-validate" id="c1-btn" onclick="validateChallenge1()" disabled>VALIDAR SELECCIÓ</button>
+      </div>
+    </div>
+
+    <!-- REPTE 2: ENERGIA NETA -->
+    <div id="challenge-2" class="challenge">
+      <div class="challenge-header">
+        <div class="ods-badge ods13">ODS<br>13<span>ACCIÓ CLIMA</span></div>
+        <div>
+          <div class="challenge-title">EL LABERINT DE L'ENERGIA NETA</div>
+          <div class="challenge-desc">El camí cap a un futur sostenible i eficient</div>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>// temperatura del servidor //</h3>
+        <div class="server-temp">
+          <div class="temp-value ok" id="temp-display">30°C</div>
+          <div class="temp-bar-wrap"><div class="temp-bar" id="temp-bar" style="width:20%"></div></div>
+          <div style="font-size:0.7rem;color:#7ab99a">Temperatura crítica: 90°C</div>
+        </div>
+        <h3>// fonts d'energia disponibles //</h3>
+        <div class="energy-panel">
+          <div class="energy-switch danger" onclick="selectEnergy('carbo', this)">
+            <div class="energy-icon">🏭</div>
+            <div class="energy-name">Carbó</div>
+            <div class="energy-co2" style="color:var(--red)">CO₂: +850g/kWh</div>
+          </div>
+          <div class="energy-switch danger" onclick="selectEnergy('petroli', this)">
+            <div class="energy-icon">🛢️</div>
+            <div class="energy-name">Petroli</div>
+            <div class="energy-co2" style="color:var(--red)">CO₂: +650g/kWh</div>
+          </div>
+          <div class="energy-switch" onclick="selectEnergy('solar', this)">
+            <div class="energy-icon">☀️</div>
+            <div class="energy-name">Plaques Solars</div>
+            <div class="energy-co2" style="color:var(--green)">CO₂: 0g/kWh</div>
+          </div>
+        </div>
+        <div class="feedback" id="c2-feedback-pre"></div>
+      </div>
+
+      <div class="panel-box" id="maze-section" style="display:none">
+        <h3>// laberint de cables — connecta l'energia solar al CPD //</h3>
+        <div class="maze-instructions">Clica a la casella adjacent per moure el cursor ☀️ fins al CPD 🖥️</div>
+        <div class="maze-container">
+          <canvas id="maze-canvas" width="300" height="300"></canvas>
+        </div>
+        <div class="feedback" id="c2-feedback"></div>
+        <button class="btn-validate" id="c2-btn" onclick="checkMazeSolved()" disabled>VERIFICAR CONNEXIÓ</button>
+      </div>
+    </div>
+
+    <!-- REPTE 3: CICLE DE VIDA -->
+    <div id="challenge-3" class="challenge">
+      <div class="challenge-header">
+        <div class="ods-badge ec">EC<br><span>ECONOMIA CIRCULAR</span></div>
+        <div>
+          <div class="challenge-title">EL PUZLE DEL CICLE DE VIDA</div>
+          <div class="challenge-desc">El cicle que dóna una nova vida al planeta</div>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>// instruccions //</h3>
+        <p style="font-size:0.85rem;color:#a0dfc0;line-height:1.6">
+          Arrossega les 5 accions cap a la posició correcta al diagrama circular. Recorda: en l'economia circular, cap recurs es llença. Si les poses en ordre lineal, el sistema col·lapsarà.
+        </p>
+      </div>
+
+      <div class="panel-box">
+        <h3>// construeix el cercle de vida //</h3>
+        <div class="lifecycle-area">
+          <div class="lifecycle-source">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--cyan);letter-spacing:0.2em;margin-bottom:12px;opacity:0.7">ACCIONS DISPONIBLES</div>
+            <div id="drag-items">
+              <div class="drag-item" draggable="true" data-action="Extreure materials" data-pos="0">⛏️ Extreure materials</div>
+              <div class="drag-item" draggable="true" data-action="Dissenyar" data-pos="1">✏️ Dissenyar</div>
+              <div class="drag-item" draggable="true" data-action="Fabricar" data-pos="2">🏭 Fabricar</div>
+              <div class="drag-item" draggable="true" data-action="Fer servir" data-pos="3">💻 Fer servir</div>
+              <div class="drag-item" draggable="true" data-action="Reciclar" data-pos="4">♻️ Reciclar</div>
+            </div>
+          </div>
+          <div class="lifecycle-target">
+            <div class="cycle-diagram">
+              <svg viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="130" cy="130" r="95" stroke="rgba(0,255,157,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+                <circle cx="130" cy="130" r="60" stroke="rgba(0,229,255,0.1)" stroke-width="1"/>
+                <text x="130" y="126" text-anchor="middle" font-family="Orbitron,monospace" font-size="9" fill="rgba(0,255,157,0.5)" font-weight="700">MODEL</text>
+                <text x="130" y="139" text-anchor="middle" font-family="Orbitron,monospace" font-size="9" fill="rgba(0,255,157,0.5)" font-weight="700">CIRCULAR</text>
+                <!-- Arrows on circle -->
+                <path d="M 130 35 A 95 95 0 0 1 218 83" stroke="rgba(0,255,157,0.3)" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+                <path d="M 218 83 A 95 95 0 0 1 225 130" stroke="rgba(0,255,157,0.3)" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+                <path d="M 225 130 A 95 95 0 0 1 180 210" stroke="rgba(0,255,157,0.3)" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+                <path d="M 180 210 A 95 95 0 0 1 80 210" stroke="rgba(0,255,157,0.3)" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+                <path d="M 80 210 A 95 95 0 0 1 35 130" stroke="rgba(0,255,157,0.3)" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+                <path d="M 35 130 A 95 95 0 0 1 130 35" stroke="rgba(0,255,157,0.3)" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+                <defs>
+                  <marker id="arr" markerWidth="5" markerHeight="5" refX="3" refY="2.5" orient="auto">
+                    <path d="M 0 0 L 5 2.5 L 0 5 Z" fill="rgba(0,255,157,0.5)"/>
+                  </marker>
+                </defs>
+              </svg>
+              <div class="cycle-slots">
+                <!-- Top -->
+                <div class="cycle-slot" id="slot-0" style="left:50%;top:5%" data-slot="0" ondragover="allowDrop(event)" ondrop="drop(event,0)">↓ soltar</div>
+                <!-- Top-right -->
+                <div class="cycle-slot" id="slot-1" style="left:88%;top:27%" data-slot="1" ondragover="allowDrop(event)" ondrop="drop(event,1)">↓ soltar</div>
+                <!-- Bottom-right -->
+                <div class="cycle-slot" id="slot-2" style="left:88%;top:72%" data-slot="2" ondragover="allowDrop(event)" ondrop="drop(event,2)">↓ soltar</div>
+                <!-- Bottom -->
+                <div class="cycle-slot" id="slot-3" style="left:50%;top:92%" data-slot="3" ondragover="allowDrop(event)" ondrop="drop(event,3)">↓ soltar</div>
+                <!-- Left -->
+                <div class="cycle-slot" id="slot-4" style="left:12%;top:50%" data-slot="4" ondragover="allowDrop(event)" ondrop="drop(event,4)">↓ soltar</div>
+              </div>
+            </div>
+            <div class="feedback" id="c3-feedback"></div>
+            <button class="btn-validate" id="c3-btn" onclick="validateChallenge3()" disabled>VALIDAR CICLE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPTE 4: CODI FINAL -->
+    <div id="challenge-4" class="challenge">
+      <div class="challenge-header">
+        <div class="ods-badge final">ODS<br>9·12·13<span>TOTS ELS ODS</span></div>
+        <div>
+          <div class="challenge-title">EL CODI DE L'ADMINISTRADOR RESPONSABLE</div>
+          <div class="challenge-desc">Demostra que has après la lliçó per alliberar el sistema</div>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>// terminal del sistema //</h3>
+        <div class="terminal-input" id="terminal-out">
+          <div class="terminal-line dim">$ sistema_cpd --status</div>
+          <div class="terminal-line">✓ Temperatura: 28°C [OK]</div>
+          <div class="terminal-line">✓ Energia: Solar [RENOVABLE]</div>
+          <div class="terminal-line">✓ Hardware: Reutilitzat [CIRCULAR]</div>
+          <div class="terminal-line" style="color:var(--yellow)">⚠ Falta contrasenya d'administrador</div>
+          <div class="terminal-line dim">$ introdueix codi d'accés: <span class="cursor"></span></div>
+        </div>
+        <h3>// pregunta de seguretat //</h3>
+        <p style="font-size:0.9rem;color:#a0dfc0;margin-bottom:16px;line-height:1.6">
+          Quin és el benefici principal d'aplicar l'economia circular en una empresa d'informàtica?
+        </p>
+        <div class="quiz-options" id="c4-options">
+          <div class="quiz-option" onclick="selectQuizOption(this, false)">
+            <div class="option-letter">A</div>
+            Comprar ordinadors nous cada any per tenir l'últim model disponible
+          </div>
+          <div class="quiz-option" onclick="selectQuizOption(this, true)">
+            <div class="option-letter">B</div>
+            Estalvi de costos i reducció de residus reutilitzant i reciclant components
+          </div>
+          <div class="quiz-option" onclick="selectQuizOption(this, false)">
+            <div class="option-letter">C</div>
+            Augmentar la producció de residus electrònics per estimular la indústria
+          </div>
+          <div class="quiz-option" onclick="selectQuizOption(this, false)">
+            <div class="option-letter">D</div>
+            Fer servir només energies fòssils perquè són més barates a curt termini
+          </div>
+        </div>
+        <div class="feedback" id="c4-feedback"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== WIN ===================== -->
+<div id="screen-win" class="screen">
+  <div class="game-container">
+    <div class="win-title glitch" data-text="MISSIÓ COMPLETADA">MISSIÓ COMPLETADA</div>
+    <div class="win-subtitle">// El CPD és ara sostenible i eficient //</div>
+
+    <div class="win-stats">
+      <div class="stat-box">
+        <span class="stat-num" id="win-time">—</span>
+        <span class="stat-label">TEMPS FINAL</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" style="color:var(--cyan)">4/4</span>
+        <span class="stat-label">REPTES SUPERATS</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num" style="color:var(--yellow)">⭐⭐⭐</span>
+        <span class="stat-label">VALORACIÓ</span>
+      </div>
+    </div>
+
+    <div class="osd-summary">
+      <h3>// ODS TREBALLATS EN AQUESTA MISSIÓ //</h3>
+      <div class="ods-row"><span style="color:var(--yellow);font-weight:700">ODS 9</span> — Infraestructura tecnològica sostenible i eficient</div>
+      <div class="ods-row"><span style="color:var(--yellow);font-weight:700">ODS 12</span> — Consum responsable: reutilitzar i no llençar hardware</div>
+      <div class="ods-row"><span style="color:var(--yellow);font-weight:700">ODS 13</span> — Energia renovable per reduir la petjada de carboni</div>
+      <div class="ods-row"><span style="color:var(--cyan);font-weight:700">EC</span> — Model circular: extreure → dissenyar → fabricar → usar → reciclar</div>
+    </div>
+
+    <button class="btn-secondary" onclick="restartGame()">↩ TORNAR A JUGAR</button>
+  </div>
+</div>
+
+<!-- ===================== GAME OVER ===================== -->
+<div id="screen-over" class="screen">
+  <div class="game-container">
+    <div class="over-title">⚠ SOBRECÀLRREGA CRÍTICA</div>
+    <p style="font-family:'Share Tech Mono',monospace;color:#ff9ab0;margin-bottom:30px;font-size:0.9rem">El sistema ha explotat. El CPD no era prou sostenible.</p>
+    <div class="panel-box" style="max-width:480px;margin:0 auto 30px;text-align:left">
+      <h3>// per la propera vegada recorda //</h3>
+      <p style="font-size:0.85rem;color:#a0dfc0;line-height:1.7">
+        🔄 Reutilitza el hardware abans de comprar nou (ODS 12)<br>
+        ☀️ Utilitza energies renovables per als servidors (ODS 13)<br>
+        ♻️ Aplica el model circular: res no és residus (Economia Circular)
+      </p>
+    </div>
+    <button class="btn-secondary" onclick="restartGame()">↩ TORNAR A INTENTAR-HO</button>
+  </div>
+</div>
+
+<script>
+// ===================== GAME STATE =====================
+let gameState = {
+  currentChallenge: 1,
+  timerInterval: null,
+  timeLeft: 600,
+  started: false,
+  c1Selected: [],
+  c2Energy: null,
+  c2MazeSolved: false,
+  c3Slots: [null, null, null, null, null],
+  mazePlayerPos: null,
+  mazeGrid: null,
+  mazeSolved: false,
+};
+
+// ===================== TIMER =====================
+function startGame() {
+  showScreen('game');
+  gameState.started = true;
+  gameState.timerInterval = setInterval(tickTimer, 1000);
+  initChallenge1();
+}
+
+function tickTimer() {
+  gameState.timeLeft--;
+  updateTimerDisplay();
+  if (gameState.timeLeft <= 0) {
+    clearInterval(gameState.timerInterval);
+    showScreen('over');
+  }
+  if (gameState.timeLeft <= 120) {
+    document.getElementById('timer-display').className = 'hud-timer';
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(gameState.timeLeft / 60).toString().padStart(2,'0');
+  const s = (gameState.timeLeft % 60).toString().padStart(2,'0');
+  document.getElementById('timer-display').textContent = m + ':' + s;
+}
+
+// ===================== SCREENS =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function showChallenge(n) {
+  document.querySelectorAll('.challenge').forEach(c => c.classList.remove('active'));
+  document.getElementById('challenge-' + n).classList.add('active');
+  gameState.currentChallenge = n;
+  document.getElementById('challenge-label').textContent = n + ' / 4';
+
+  // Update dots
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.className = 'dot';
+    if (i < n) dot.classList.add('done');
+    if (i === n) dot.classList.add('active');
+  }
+}
+
+function nextChallenge() {
+  const n = gameState.currentChallenge + 1;
+  if (n === 2) { showChallenge(2); }
+  else if (n === 3) { showChallenge(3); initChallenge3(); }
+  else if (n === 4) { showChallenge(4); }
+  else { winGame(); }
+}
+
+// ===================== CHALLENGE 1 =====================
+const COMPONENTS = [
+  { name: 'GPU GTX 970', icon: '🎮', ok: true, desc: 'FUNCIONAL' },
+  { name: 'RAM DDR4 8GB', icon: '💾', ok: true, desc: 'FUNCIONAL' },
+  { name: 'SSD 500GB', icon: '💿', ok: true, desc: 'FUNCIONAL' },
+  { name: 'CPU Intel i5', icon: '🔲', ok: false, desc: 'CREMADA' },
+  { name: 'PSU 650W', icon: '⚡', ok: false, desc: 'AVARIADA' },
+  { name: 'HDD 1TB (2009)', icon: '📀', ok: false, desc: 'DETERIORAT' },
+];
+
+function initChallenge1() {
+  const grid = document.getElementById('c1-grid');
+  grid.innerHTML = '';
+  COMPONENTS.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'component-item';
+    el.innerHTML = `<div class="component-icon">${c.icon}</div>
+      <div class="component-name">${c.name}</div>
+      <div class="component-status ${c.ok ? 'status-ok' : 'status-bad'}">${c.ok ? '✓ ' : '✗ '}${c.desc}</div>`;
+    el.onclick = () => toggleComponent(el, i, c);
+    grid.appendChild(el);
+  });
+}
+
+function toggleComponent(el, i, comp) {
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    gameState.c1Selected = gameState.c1Selected.filter(x => x !== i);
+  } else {
+    if (gameState.c1Selected.length >= 3) return;
+    el.classList.add('selected');
+    gameState.c1Selected.push(i);
+  }
+  document.querySelector('#c1-counter span').textContent = gameState.c1Selected.length;
+  document.getElementById('c1-btn').disabled = gameState.c1Selected.length !== 3;
+}
+
+function validateChallenge1() {
+  const allOk = gameState.c1Selected.every(i => COMPONENTS[i].ok);
+  const fb = document.getElementById('c1-feedback');
+  if (allOk) {
+    fb.className = 'feedback success show';
+    fb.textContent = '✓ Perfecte! Has identificat els 3 components reutilitzables. Estem estalviant recursos i reduint residus (ODS 12).';
+    document.getElementById('c1-btn').disabled = true;
+    setTimeout(nextChallenge, 1800);
+  } else {
+    fb.className = 'feedback error show';
+    fb.textContent = '✗ Alguna selecció és incorrecta. Revisa l\'estat de cada component.';
+    gameState.c1Selected.forEach(i => {
+      if (!COMPONENTS[i].ok) {
+        document.getElementById('c1-grid').children[i].classList.add('wrong');
+        setTimeout(() => document.getElementById('c1-grid').children[i].classList.remove('wrong'), 600);
+      }
+    });
+  }
+}
+
+// ===================== CHALLENGE 2 =====================
+let tempValue = 30;
+
+function selectEnergy(type, el) {
+  const fb = document.getElementById('c2-feedback-pre');
+  if (type === 'carbo' || type === 'petroli') {
+    tempValue = Math.min(90, tempValue + 25);
+    updateTemp();
+    fb.className = 'feedback error show';
+    fb.textContent = `✗ Energia fòssil seleccionada. La temperatura del servidor puja! CO₂ emès al planeta.`;
+    el.classList.add('locked');
+    if (tempValue >= 90) {
+      clearInterval(gameState.timerInterval);
+      setTimeout(() => showScreen('over'), 1000);
+    }
+  } else {
+    fb.className = 'feedback success show';
+    fb.textContent = '✓ Energia solar seleccionada! CO₂: 0g/kWh. Ara has de connectar el cable solar al CPD.';
+    document.querySelectorAll('.energy-switch').forEach(e => e.classList.add('locked'));
+    el.classList.remove('locked');
+    el.classList.add('safe');
+    gameState.c2Energy = 'solar';
+    setTimeout(() => {
+      document.getElementById('maze-section').style.display = 'block';
+      initMaze();
+    }, 1000);
+  }
+}
+
+function updateTemp() {
+  const pct = ((tempValue - 20) / 70) * 100;
+  document.getElementById('temp-bar').style.width = pct + '%';
+  const disp = document.getElementById('temp-display');
+  disp.textContent = tempValue + '°C';
+  disp.className = 'temp-value ' + (tempValue > 60 ? 'hot' : 'ok');
+}
+
+// Simple maze
+const MAZE_SIZE = 6;
+let mazeGrid, playerPos, targetPos;
+
+function initMaze() {
+  mazeGrid = [];
+  for (let r = 0; r < MAZE_SIZE; r++) {
+    mazeGrid.push([]);
+    for (let c = 0; c < MAZE_SIZE; c++) {
+      mazeGrid[r].push(Math.random() > 0.3 ? 0 : 1);
+    }
+  }
+  // Ensure path exists: carve a simple path
+  mazeGrid[0][0] = 0; mazeGrid[0][1] = 0; mazeGrid[1][1] = 0;
+  mazeGrid[1][2] = 0; mazeGrid[2][2] = 0; mazeGrid[2][3] = 0;
+  mazeGrid[3][3] = 0; mazeGrid[3][4] = 0; mazeGrid[4][4] = 0;
+  mazeGrid[4][5] = 0; mazeGrid[5][5] = 0;
+
+  playerPos = { r: 0, c: 0 };
+  targetPos = { r: 5, c: 5 };
+  gameState.mazeSolved = false;
+  document.getElementById('c2-btn').disabled = true;
+
+  const canvas = document.getElementById('maze-canvas');
+  canvas.onclick = handleMazeClick;
+  drawMaze();
+}
+
+function drawMaze() {
+  const canvas = document.getElementById('maze-canvas');
+  const ctx = canvas.getContext('2d');
+  const cell = 300 / MAZE_SIZE;
+  ctx.clearRect(0, 0, 300, 300);
+
+  for (let r = 0; r < MAZE_SIZE; r++) {
+    for (let c = 0; c < MAZE_SIZE; c++) {
+      const x = c * cell, y = r * cell;
+      if (mazeGrid[r][c] === 1) {
+        ctx.fillStyle = 'rgba(0,10,5,0.95)';
+        ctx.fillRect(x, y, cell, cell);
+        ctx.strokeStyle = 'rgba(0,255,157,0.05)';
+        ctx.strokeRect(x, y, cell, cell);
+      } else {
+        ctx.fillStyle = 'rgba(0,30,20,0.6)';
+        ctx.fillRect(x, y, cell, cell);
+        ctx.strokeStyle = 'rgba(0,255,157,0.15)';
+        ctx.strokeRect(x, y, cell, cell);
+      }
+    }
+  }
+
+  // Target
+  const tx = targetPos.c * cell + cell / 2;
+  const ty = targetPos.r * cell + cell / 2;
+  ctx.fillStyle = 'rgba(0,229,255,0.15)';
+  ctx.fillRect(targetPos.c * cell, targetPos.r * cell, cell, cell);
+  ctx.font = Math.floor(cell * 0.55) + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🖥️', tx, ty);
+
+  // Player
+  const px = playerPos.c * cell + cell / 2;
+  const py = playerPos.r * cell + cell / 2;
+  ctx.fillStyle = 'rgba(255,230,0,0.15)';
+  ctx.fillRect(playerPos.c * cell, playerPos.r * cell, cell, cell);
+  ctx.fillText('☀️', px, py);
+}
+
+function handleMazeClick(e) {
+  if (gameState.mazeSolved) return;
+  const canvas = document.getElementById('maze-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const cell = 300 / MAZE_SIZE;
+  const xClick = e.clientX - rect.left;
+  const yClick = e.clientY - rect.top;
+  const c = Math.floor(xClick / (rect.width / MAZE_SIZE));
+  const r = Math.floor(yClick / (rect.height / MAZE_SIZE));
+
+  if (c < 0 || c >= MAZE_SIZE || r < 0 || r >= MAZE_SIZE) return;
+  const dr = Math.abs(r - playerPos.r), dc = Math.abs(c - playerPos.c);
+  if ((dr + dc) !== 1) return;
+  if (mazeGrid[r][c] === 1) {
+    // Hit wall
+    const fb = document.getElementById('c2-feedback');
+    fb.className = 'feedback error show';
+    fb.textContent = '✗ Camí bloquejat! Busca una altra ruta.';
+    setTimeout(() => fb.classList.remove('show'), 1500);
+    return;
+  }
+  playerPos = { r, c };
+  drawMaze();
+
+  if (r === targetPos.r && c === targetPos.c) {
+    gameState.mazeSolved = true;
+    document.getElementById('c2-btn').disabled = false;
+    const fb = document.getElementById('c2-feedback');
+    fb.className = 'feedback success show';
+    fb.textContent = '✓ Cable connectat! L\'energia solar alimenta el CPD. Clica "Verificar connexió".';
+  }
+}
+
+function checkMazeSolved() {
+  if (gameState.mazeSolved) {
+    setTimeout(nextChallenge, 500);
+  }
+}
+
+// ===================== CHALLENGE 3 =====================
+const CYCLE_ORDER = ['Extreure materials', 'Dissenyar', 'Fabricar', 'Fer servir', 'Reciclar'];
+
+function initChallenge3() {
+  gameState.c3Slots = [null, null, null, null, null];
+  // Reset drag items
+  document.querySelectorAll('.drag-item').forEach(el => {
+    el.classList.remove('placed');
+    el.draggable = true;
+    el.ondragstart = (e) => { e.dataTransfer.setData('action', el.dataset.action); el.classList.add('dragging'); };
+    el.ondragend = () => el.classList.remove('dragging');
+  });
+  // Reset slots
+  for (let i = 0; i < 5; i++) {
+    const slot = document.getElementById('slot-' + i);
+    slot.textContent = '↓ soltar';
+    slot.className = 'cycle-slot';
+    slot.dataset.filled = '';
+  }
+  document.getElementById('c3-btn').disabled = true;
+}
+
+function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+
+function drop(e, slotIdx) {
+  e.preventDefault();
+  const action = e.dataTransfer.getData('action');
+  const slot = document.getElementById('slot-' + slotIdx);
+  slot.classList.remove('dragover');
+
+  if (slot.dataset.filled) return; // already filled
+
+  slot.textContent = action;
+  slot.classList.add('filled');
+  slot.dataset.filled = action;
+  gameState.c3Slots[slotIdx] = action;
+
+  // Mark drag item as placed
+  document.querySelectorAll('.drag-item').forEach(el => {
+    if (el.dataset.action === action) el.classList.add('placed');
+  });
+
+  // Enable validate if all slots filled
+  if (gameState.c3Slots.every(s => s !== null)) {
+    document.getElementById('c3-btn').disabled = false;
+  }
+}
+
+function validateChallenge3() {
+  const correct = CYCLE_ORDER.every((a, i) => gameState.c3Slots[i] === a);
+  const fb = document.getElementById('c3-feedback');
+  if (correct) {
+    fb.className = 'feedback success show';
+    fb.textContent = '✓ Excel·lent! Has completat el cicle de vida correctament. Model circular = estalvi i futur.';
+    document.getElementById('c3-btn').disabled = true;
+    setTimeout(nextChallenge, 1800);
+  } else {
+    fb.className = 'feedback error show';
+    fb.textContent = '✗ L\'ordre no és correcte! Recorda: el cicle va de l\'extracció fins al reciclatge i torna a començar.';
+    // Reset slots after 1.5s
+    setTimeout(() => {
+      initChallenge3();
+      fb.classList.remove('show');
+    }, 2000);
+  }
+}
+
+// ===================== CHALLENGE 4 =====================
+function selectQuizOption(el, correct) {
+  document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('correct','wrong'));
+  const fb = document.getElementById('c4-feedback');
+
+  if (correct) {
+    el.classList.add('correct');
+    fb.className = 'feedback success show';
+    fb.textContent = '✓ CORRECTE! Estalvi de costos i reducció de residus. Contrasenya acceptada.';
+    // Update terminal
+    const terminal = document.getElementById('terminal-out');
+    terminal.innerHTML = `
+      <div class="terminal-line dim">$ sistema_cpd --unlock</div>
+      <div class="terminal-line" style="color:var(--green)">✓ Contrasenya: EC_CIRCULAR_2025</div>
+      <div class="terminal-line" style="color:var(--green)">✓ ACCÉS CONCEDIT</div>
+      <div class="terminal-line" style="color:var(--cyan)">🎉 CPD SOSTENIBLE ACTIVAT!</div>
+    `;
+    document.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+    setTimeout(winGame, 1800);
+  } else {
+    el.classList.add('wrong');
+    fb.className = 'feedback error show';
+    fb.textContent = '✗ Resposta incorrecta. Repassa els conceptes d\'economia circular.';
+    setTimeout(() => {
+      el.classList.remove('wrong');
+      fb.classList.remove('show');
+    }, 1500);
+  }
+}
+
+// ===================== WIN / LOSE =====================
+function winGame() {
+  clearInterval(gameState.timerInterval);
+  const elapsed = 600 - gameState.timeLeft;
+  const m = Math.floor(elapsed / 60).toString().padStart(2,'0');
+  const s = (elapsed % 60).toString().padStart(2,'0');
+  document.getElementById('win-time').textContent = m + ':' + s;
+
+  // Mark all dots done
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('dot-' + i).className = 'dot done';
+  }
+
+  showScreen('win');
+  spawnConfetti();
+}
+
+function spawnConfetti() {
+  const colors = ['#00ff9d','#00e5ff','#ffe600','#ff3d5a','#ffffff'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      p.style.animationDelay = (Math.random() * 1) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 4000);
+    }, i * 40);
+  }
+}
+
+function restartGame() {
+  clearInterval(gameState.timerInterval);
+  gameState = {
+    currentChallenge: 1,
+    timerInterval: null,
+    timeLeft: 600,
+    started: false,
+    c1Selected: [],
+    c2Energy: null,
+    c2MazeSolved: false,
+    c3Slots: [null, null, null, null, null],
+    mazePlayerPos: null,
+    mazeGrid: null,
+    mazeSolved: false,
+  };
+  // Reset UI
+  document.getElementById('timer-display').textContent = '10:00';
+  document.getElementById('timer-display').className = 'hud-timer ok';
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.className = 'dot';
+    if (i === 1) dot.classList.add('active');
+  }
+  document.getElementById('c1-feedback').className = 'feedback';
+  document.getElementById('c2-feedback-pre').className = 'feedback';
+  document.getElementById('c2-feedback').className = 'feedback';
+  document.getElementById('c3-feedback').className = 'feedback';
+  document.getElementById('c4-feedback').className = 'feedback';
+  document.getElementById('maze-section').style.display = 'none';
+  document.querySelectorAll('.energy-switch').forEach(el => {
+    el.classList.remove('locked','safe','danger');
+    if (el.querySelector('.energy-name').textContent.includes('Carbó') || el.querySelector('.energy-name').textContent.includes('Petroli')) {
+      el.classList.add('danger');
+    }
+  });
+  tempValue = 30;
+  updateTemp();
+  showChallenge(1);
+  initChallenge1();
+  initChallenge3();
+  showScreen('game');
+  gameState.started = true;
+  gameState.timerInterval = setInterval(tickTimer, 1000);
+}
+</script>
 </body>
 </html>
