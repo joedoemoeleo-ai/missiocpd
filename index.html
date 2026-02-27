@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscripción Ciclos Formativos</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <h1>HOJA DE INSCRIPCIÓN <br> EN LOS CICLOS FORMATIVOS DE GRADO SUPERIOR</h1>
+
+        <form action="valida.php" method="post">
+            
+            <fieldset class="bloque-gris">
+                <legend>Datos Personales</legend>
+                <div class="fila">
+                    <label>Nombre: <input type="text" name="nom"></label>
+                    <label>Apellidos: <input type="text" name="ape"></label>
+                    <label>DNI: <input type="text" name="dni" size="10"></label>
+                </div>
+                <div class="fila">
+                    <label>Localidad Nacimiento: <input type="text" name="loc"></label>
+                    <label>Provincia: 
+                        <select name="prov">
+                            <option value="">- selecciona -</option>
+                            <option value="bcn">Barcelona</option>
+                            <option value="mad">Madrid</option>
+                            <option value="val">Valencia</option>
+                        </select>
+                    </label>
+                    <label>Fecha Nacimiento: <input type="text" name="fecha" placeholder="dd/mm/aaaa"></label>
+                </div>
+                <div class="fila">
+                    <label class="ancho-total">Dirección: <input type="text" name="dir"></label>
+                    <label>Código Postal: <input type="text" name="cp" size="5"></label>
+                </div>
+            </fieldset>
+
+            <fieldset class="bloque-naranja">
+                <legend>Forma de Acceso</legend>
+                <div class="opciones-acceso">
+                    <p><input type="radio" name="tipo_acceso" value="directo"> Directo</p>
+                    <ul class="lista-sub">
+                        <li><input type="radio" name="sub_directo"> Bachillerato LOGSE. Modalidad <input type="text" name="mod_logse"></li>
+                        <li><input type="radio" name="sub_directo"> Bachillerato Experimental</li>
+                        <li><input type="radio" name="sub_directo"> COU. Opción <input type="text" name="opt_cou"></li>
+                        <li><input type="radio" name="sub_directo"> FP2</li>
+                        <li><input type="radio" name="sub_directo"> Otros (especifique) <input type="text" name="otros_acc"></li>
+                    </ul>
+                    <p><input type="radio" name="tipo_acceso" value="prueba"> Prueba Libre</p>
+                </div>
+            </fieldset>
+
+            <fieldset class="bloque-rojo">
+                <legend>Documentos Adjuntados</legend>
+                <div class="fila-docs">
+                    <label><input type="checkbox" name="doc_dni"> Fotocopia DNI</label>
+                    <label><input type="checkbox" name="doc_cert"> Certificado Académico</label>
+                </div>
+                <div class="fila-docs">
+                    <label><input type="checkbox" name="doc_otros"> Otros documentos (especifique)</label>
+                    <input type="text" name="otros_doc" class="input-largo">
+                </div>
+            </fieldset>
+
+            <input type="submit" value="Enviar Solicitud" class="boton-envio">
+        </form>
+    </div>
+
+</body>
+</html>
